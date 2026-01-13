@@ -1,0 +1,26 @@
+/* ---------- CSS RESET ---------- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, input, button, select, textarea, label {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+body {
+    margin: 0px;
+    height: 100vh;
+}
+
+/* ---------- GOOGLE MAP ---------- */
+h1 {
+    text-align: center;
+    margin: 10px 0 20px 0;
+}
+
+#map {
+    width: 100%;
+    height: 85vh;
+}
