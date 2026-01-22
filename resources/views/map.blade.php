@@ -7,7 +7,7 @@
 
         const VELOCITY = 1;
 
-        // Custom shader:  Blends night and day images to simulate day/night cycle
+        // Custom shader: Blends night and day images to simulate day/night cycle
         const dayNightShader = {
         vertexShader: `
             varying vec3 vNormal;
@@ -65,26 +65,83 @@
         };
 
         const sunPosAt = dt => {
-        const day = new Date(+dt).setUTCHours(0, 0, 0, 0);
-        const t = solar.century(dt);
-        const longitude = (day - dt) / 864e5 * 360 - 180;
-        return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
+            const day = new Date(+dt).setUTCHours(0, 0, 0, 0);
+            const t = solar.century(dt);
+            const longitude = (day - dt) / 864e5 * 360 - 180;
+            return [longitude - solar.equationOfTime(t) / 4, solar.declination(t)];
         };
 
         let dt = +new Date();
 
         const world = new Globe(document.getElementById('globeViz'));
 
+        world.pointOfView({ lat: 40, lng: 10, altitude: 2 }, 1000); // load in view
+
+        // Plane Icon Loop
+        // const plane_api = 'https://opensky-network.org/api/states/all';
+        const plane_api = '/plane.json';
+        const plane_icon = '/plane.png';
+
+        // setup plane layer
+        world
+        .htmlElementsData([])
+        .htmlElement(d => {
+            const el = document.createElement('div');
+            const img = document.createElement('img');
+            img.src = plane_icon;
+            img.style.width = '20px';
+            img.style.height = '20px';
+            img.style.display = 'block';
+            img.style.transform = `rotate(${d.heading}deg)`;
+            el.style.pointerEvents = 'none';
+            el.appendChild(img);
+            return el;
+        });
+
+        // fetch planes
+        async function loadPlanes() {
+            try {
+                const responce = await fetch(plane_api);
+                if (!responce.ok) throw new Error('API down or rate-limited');
+
+                const data = await responce.json();
+                if (!data.states) return;
+
+                // maps each plane to the fields
+                const planes = data.states
+                .filter(p => p[5] != null && p[6] != null)
+                .map(p => {
+                    return {
+                        callsign: p[1]?.trim(),
+                        lat: p[6],
+                        lng: p[5],
+                        on_ground: p[8],
+                        velocity: p[9],
+                        heading: (p[10] - 45),
+                        altitude: p[7] || p[13]
+                    };
+                });
+
+                world.htmlElementsData(planes);
+
+            } catch (e) {
+                console.log('Could not fetch planes, API might be down:', e.message);
+            }
+        }
+
+        // loop
+        loadPlanes();
+
         Promise.all([
-        new TextureLoader().loadAsync('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg'),
-        new TextureLoader().loadAsync('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg')
+            new TextureLoader().loadAsync('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg'),
+            new TextureLoader().loadAsync('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg')
         ]).then(([dayTexture, nightTexture]) => {
         const material = new ShaderMaterial({
             uniforms: {
-            dayTexture: { value: dayTexture },
-            nightTexture: { value: nightTexture },
-            sunPosition: { value: new Vector2() },
-            globeRotation: { value: new Vector2() }
+                dayTexture: { value: dayTexture },
+                nightTexture: { value: nightTexture },
+                sunPosition: { value: new Vector2() },
+                globeRotation: { value: new Vector2() }
             },
             vertexShader: dayNightShader.vertexShader,
             fragmentShader: dayNightShader.fragmentShader
