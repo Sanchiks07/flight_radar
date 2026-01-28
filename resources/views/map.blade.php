@@ -87,14 +87,44 @@
         .htmlElementsData([])
         .htmlElement(d => {
             const el = document.createElement('div');
+            el.style.position = 'relative';
+            el.style.pointerEvents = 'none';
+            
             const img = document.createElement('img');
             img.src = plane_icon;
+            img.onclick = () => {
+                alert(`Plane: ${d.callsign || 'Unknown'}`);
+            };
             img.style.width = '20px';
             img.style.height = '20px';
             img.style.display = 'block';
             img.style.transform = `rotate(${d.heading}deg)`;
-            el.style.pointerEvents = 'none';
+            img.style.cursor = 'pointer';
             el.appendChild(img);
+            
+            // label for callsign
+            const label = document.createElement('div');
+            label.textContent = d.callsign || 'Unknown';
+            label.style.position = 'absolute';
+            label.style.zIndex = 'auto';
+            label.style.left = '25px';
+            label.style.top = '0px';
+            label.style.whiteSpace = 'nowrap';
+            label.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            label.style.color = 'white';
+            label.style.padding = '2px 5px';
+            label.style.borderRadius = '3px';
+            label.style.fontSize = '12px';
+            label.style.display = 'none';
+            label.style.pointerEvents = 'none';
+            label.style.fontWeight = 'bold';
+            el.appendChild(label);
+            
+            // show/hide label on hover
+            el.style.pointerEvents = 'auto';
+            el.addEventListener('mouseenter', () => { label.style.display = 'block'; });
+            el.addEventListener('mouseleave', () => { label.style.display = 'none'; });
+            
             return el;
         });
 
