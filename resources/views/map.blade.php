@@ -1,5 +1,10 @@
 <x-layout>
     <div id="globeViz"></div>
+    <div id="infoPopup">
+        <button type="button" id="closeInfoBtn" aria-label="Close">X</button>
+        <div id="infoContent"></div>
+    </div>
+
 
     <script type="module">
         import { TextureLoader, ShaderMaterial, Vector2 } from 'https://esm.sh/three';
@@ -90,10 +95,32 @@
             el.style.position = 'relative';
             el.style.pointerEvents = 'none';
             
+            // plane icon
             const img = document.createElement('img');
             img.src = plane_icon;
+            // plane info on click
             img.onclick = () => {
-                alert(`Plane: ${d.callsign || 'Unknown'}`);
+                const info = document.getElementById('infoPopup');
+                const infoContent = document.getElementById('infoContent');
+                const closeBtn = document.getElementById('closeInfoBtn');
+
+                info.style.display = 'block';
+                closeBtn.style.display = 'block';
+                const onGroundText = (d.on_ground === true || d.on_ground === false)
+                    ? (d.on_ground ? 'Yes' : 'No')
+                    : 'Unknown';
+                const lastContactText = (d.last_contact != null)
+                    ? new Date(d.last_contact * 1000).toLocaleString()
+                    : 'Unknown';
+
+                infoContent.textContent = 'Plane: ' + (d.callsign || 'Unknown') + '\nLng: ' + (d.lng || 'Unknown') + '\nLat: ' + (d.lat || 'Unknown') + '\nOn Ground: ' + onGroundText + '\nVelocity: ' + ((d.velocity != null) ? (d.velocity + ' m/s') : 'Unknown') + '\nBaro Alt: ' + ((d.baro_altitude != null) ? (d.baro_altitude + ' m') : 'Unknown') + '\nGeo Alt: ' + (d.geo_altitude || 'Unknown') + '\nLast Contact: ' + lastContactText;
+                
+                closeBtn.onclick = (a) => {
+                    a.stopPropagation();
+                    info.style.display = 'none';
+                    closeBtn.style.display = 'none';
+                    infoContent.textContent = '';
+                };
             };
             img.style.width = '20px';
             img.style.height = '20px';
@@ -143,12 +170,14 @@
                 .map(p => {
                     return {
                         callsign: p[1]?.trim(),
-                        lat: p[6],
+                        last_contact: p[4],
                         lng: p[5],
+                        lat: p[6],
+                        baro_altitude: p[7],
                         on_ground: p[8],
                         velocity: p[9],
                         heading: (p[10] - 45),
-                        altitude: p[7] || p[13]
+                        geo_altitude: p[13]
                     };
                 });
 
