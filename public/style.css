@@ -1,46 +1,136 @@
 body {
     margin: 0;
+    font-family: "Segoe UI", sans-serif;
 }
 
+/* ----------TIME DISPLAY ---------- */
+#time {
+    position: absolute;
+    z-index: 5000;
+    bottom: 8px;
+    left: 8px;
+    padding: 6px 12px;
+    color: #f1f5f9;
+    background-color: rgba(15, 23, 42, 0.75);
+    border-radius: 4px;
+}
+
+/* ---------- PLANE INFO POPUP ---------- */
 #infoPopup {
     display: none;
-    white-space: pre-line;
     position: absolute;
-    z-index: 1000;
-    left: 25px;
-    top: 25px;
-    color: white;
-    background-color: rgba(0, 0, 0, 0.85);
-    padding: 10px 12px;
-    padding-right: 40px;
-    border-radius: 6px;
-    font-size: 16px;
-    max-width: 320px;
+    left: 24px;
+    top: 24px;
+    z-index: 5000;
+    max-width: 340px;
+    padding: 16px 18px 18px 18px;
+    color: #f1f5f9;
+    white-space: pre-line;
+    background-color: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    font-size: 15px;
+    line-height: 1.45;
+    animation: popupFade 0.25s ease-out;
 }
 
-#infoPopup #infoContent {
-    margin-right: 8px;
+@keyframes popupFade {
+    from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
+/* close button */
 #closeInfoBtn {
     display: none;
     position: absolute;
-    top: 6px;
-    right: 6px;
-    cursor: pointer;
-    color: white;
-    background: red;
+    top: 8px;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
     border: none;
-    border-radius: 3px;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-    font-weight: bold;
-    font-size: 14px;
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #e5e7eb;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 22px;
     text-align: center;
-    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
 }
 
 #closeInfoBtn:hover {
-    opacity: 0.9;
+    background-color: rgba(255, 255, 255, 0.22);
+    transform: scale(1.05);
+}
+
+/* ---------- INFO POPUP ROWS ---------- */
+#infoPopup #infoContent {
+    display: block;
+}
+
+#infoPopup .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+#infoPopup .info-row:last-child {
+    border-bottom: none;
+}
+
+#infoPopup .info-label {
+    color: rgba(226,232,240,0.85);
+    font-weight: bold;
+    flex: 0 0 110px;
+    text-align: left;
+}
+
+#infoPopup .info-value {
+    color: #e6eef8;
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ---------- PLANE CALLSIGN LABEL ---------- */
+.plane-label {
+    position: absolute;
+    left: 26px;
+    top: -2px;
+    padding: 3px 8px;
+    background-color: rgba(15, 23, 42, 0.85);
+    color: #e5e7eb;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(2px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+/* show label on hover */
+.plane-hovered .plane-label {
+    opacity: 1;
+    transform: translateY(0);
 }
